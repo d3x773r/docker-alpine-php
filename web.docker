@@ -1,0 +1,10 @@
+FROM nginx:1.16-alpine
+
+ADD ./docker/config/vhost.conf /etc/nginx/conf.d/default.conf
+
+WORKDIR /var/www
+
+ADD . /var/www
+
+RUN apk add --no-cache tzdata
+ENV TZ America/Sao_Paulo

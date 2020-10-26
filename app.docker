@@ -1,0 +1,60 @@
+FROM php:7.2-fpm-alpine
+
+# COPY ./php-ini-overrides.ini /etc/php7/conf.d/
+
+# Override with custom opcache settings
+COPY ./docker/config/php.ini $PHP_INI_DIR/conf.d/
+
+# Configure PHP-FPM
+COPY ./docker/config/fpm-pool.conf /etc/php7/php-fpm.d/www.conf
+
+# Copy composer.lock and composer.json
+COPY composer.lock composer.json /var/www/
+
+WORKDIR /var/www
+
+COPY . /var/www
+
+VOLUME /var/www
+
+# RUN mkdir database/seeds
+# RUN mkdir database/factories
+
+RUN apk --update add wget \ 
+         curl \
+         git \
+         php7 \
+         php7-curl \
+         php7-openssl \
+         php7-iconv \
+         php7-json \
+         php7-mbstring \
+         php7-phar \
+         php7-dom --repository http://nl.alpinelinux.org/alpine/edge/testing/ && rm /var/cache/apk/*
+
+# Add GD compability
+RUN apk add --no-cache freetype libpng libjpeg-turbo freetype-dev libpng-dev libjpeg-turbo-dev && \
+  docker-php-ext-configure gd \
+    --with-gd \
+    --with-freetype-dir=/usr/include/ \
+    --with-png-dir=/usr/include/ \
+    --with-jpeg-dir=/usr/include/ && \
+  NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
+  docker-php-ext-install -j${NPROC} gd && \
+  apk del --no-cache freetype-dev libpng-dev libjpeg-turbo-dev
+
+# Add bcmath to run composer commad
+RUN docker-php-ext-install bcmath
+# Add database libs
+RUN docker-php-ext-install pdo pdo_mysql
+# Add permissions to storage folder
+RUN apk add --no-cache shadow make \
+    && usermod -u 1001 www-data \
+    && groupmod -g 1001 www-data
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+# Install composer libs to project
+RUN composer update
+# RUN php artisan dump-autoload 
+# RUN composer dump-autoload 
+# composer update --optimize-autoloader --no-interaction --no-progress

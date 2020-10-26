@@ -1,0 +1,57 @@
+version: '2'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: db
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=scape
+    volumes:
+      - ./docker/db-dump:/docker-entrypoint-initdb.d
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    restart: always
+    ports:
+      - "33061:3306"
+    networks:
+      - local-network
+  app:
+    build:
+      context: ./
+      dockerfile: app.docker
+    container_name: app
+    volumes:
+      - ./:/var/www
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    restart: always
+    links:
+      - db
+    networks:
+      - local-network
+    environment:
+      - DB_PORT=3306
+      - DB_HOST=db
+  web:
+    build:
+      context: ./
+      dockerfile: web.docker
+    container_name: web
+    volumes:
+      - ./:/var/www
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    restart: always
+    ports:
+      - "9087:80"
+    links:
+      - app
+    networks:
+      - local-network
+    depends_on:
+      - app
+
+networks:
+    local-network:
+      driver: bridge
