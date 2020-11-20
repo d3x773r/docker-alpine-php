@@ -9,7 +9,8 @@ COPY ./docker/config/php.ini $PHP_INI_DIR/conf.d/
 COPY ./docker/config/fpm-pool.conf /etc/php7/php-fpm.d/www.conf
 
 # Copy composer.lock and composer.json
-COPY composer.lock composer.json /var/www/
+# COPY composer.lock composer.json /var/www/
+COPY composer.json /var/www/
 
 WORKDIR /var/www
 
