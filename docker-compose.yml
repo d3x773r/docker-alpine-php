@@ -6,7 +6,7 @@ services:
     container_name: db
     environment:
       - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=app_database
+      - MYSQL_DATABASE=database
     volumes:
       - ./docker/db-dump:/docker-entrypoint-initdb.d
       - "/etc/timezone:/etc/timezone:ro"
@@ -44,7 +44,7 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
     restart: always
     ports:
-      - "9087:80"
+      - "8000:80"
     links:
       - app
     networks:
