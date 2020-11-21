@@ -17,6 +17,7 @@ Exemplo de container para rodar aplicações Laravel/Lumen
 #### Resolução de Erros
 
 Caso você esteja rodando docker no Windows e estiver enfrentando esse erro:
+
 ```ERROR: for db  Cannot start service db: OCI runtime create failed: container_linux.go:349: starting container process caused "process_linux.go:449: container init...```
 
 Considere remover esstas linhas do ```docker-compose.yml```
